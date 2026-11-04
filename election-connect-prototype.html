@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Election Connect Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0f7; --surface:#ffffff; --surface2:#f5f6fb; --ink:#14172b; --muted:#5d637a; --line:#dfe2ee;
+  --brand:#3b3fd8; --brand-ink:#ffffff; --brand-soft:#e6e7fb; --accent:#f5a524; --ok:#12805c; --ok-soft:#dcf3ea; --warn:#9a3d05; --warn-soft:#fdeed9;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c0e1a; --surface:#171a2e; --surface2:#1e2238; --ink:#eceefb; --muted:#9ba1c0; --line:#2a2f4d;
+    --brand:#8b8fff; --brand-ink:#0c0e1a; --brand-soft:#262a58; --ok:#4cd6a0; --ok-soft:#10382c; --warn:#ffb86b; --warn-soft:#3b2a14;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c0e1a; --surface:#171a2e; --surface2:#1e2238; --ink:#eceefb; --muted:#9ba1c0; --line:#2a2f4d;
+  --brand:#8b8fff; --brand-ink:#0c0e1a; --brand-soft:#262a58; --ok:#4cd6a0; --ok-soft:#10382c; --warn:#ffb86b; --warn-soft:#3b2a14;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans Thai",system-ui,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{max-width:1080px;margin:0 auto;padding:20px 16px 48px;display:grid;gap:24px;grid-template-columns:minmax(0,400px) minmax(0,1fr);align-items:start}
+@media (max-width:860px){.app{grid-template-columns:minmax(0,1fr)}}
+.proto-tag{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.proto-tag h1{font-size:20px;margin:0}
+.proto-tag p{margin:0;color:var(--muted);font-size:14px}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--warn-soft);color:var(--warn)}
+
+/* phone */
+.phone{width:100%;max-width:390px;margin:0 auto;background:#0b0d18;border-radius:38px;padding:10px;box-shadow:0 18px 50px rgba(20,23,43,.25)}
+.screen{background:var(--surface);border-radius:30px;height:760px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.status{display:flex;justify-content:space-between;padding:10px 22px 4px;font-size:12px;font-weight:700;color:var(--ink);position:relative;z-index:3}
+.view{flex:1;overflow-y:auto;display:flex;flex-direction:column;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view{animation:none}}
+.pad{padding:16px 18px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:13px 16px;font-weight:700;font-size:16px;text-align:center}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.small{padding:9px 12px;font-size:14px;border-radius:10px}
+.btn:focus-visible,.net:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.muted{color:var(--muted)}
+h2{font-size:20px;margin:0 0 4px}
+h3{font-size:16px;margin:0}
+
+/* iPhone Wi-Fi settings */
+.ios{background:var(--surface2)}
+.ios-nav{padding:8px 16px 0}
+.ios-back,.bar-btn{color:#0a6cf0;font-size:16px}
+.ios-title{font-size:30px;font-weight:700;padding:6px 18px 12px}
+.group{margin:0 16px;background:var(--surface);border-radius:12px;overflow:hidden}
+.group-h{margin:20px 32px 6px;font-size:13px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:12px 14px;border:0;border-top:1px solid var(--line);background:transparent;text-align:left;font-size:16px;color:var(--ink)}
+.group .row:first-child{border-top:0}
+.row .lead{width:20px;color:#0a6cf0;font-weight:700;display:grid;place-items:center}
+.row .name{flex:1}
+.row .trail{display:flex;gap:10px;align-items:center;color:var(--muted)}
+.info{width:20px;height:20px;border:1.5px solid #0a6cf0;border-radius:50%;color:#0a6cf0;font-size:12px;font-weight:700;display:grid;place-items:center;font-family:Georgia,serif;font-style:italic}
+.toggle{margin-left:auto;width:48px;height:29px;border-radius:999px;background:#34c759;position:relative}
+.toggle i{position:absolute;right:2px;top:2px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.hint{text-align:center;color:var(--muted);font-size:13px;margin:16px 24px}
+.mini-spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--muted);animation:spin .8s linear infinite}
+.behind{position:absolute;inset:0;padding-top:30px;overflow:hidden;display:flex;flex-direction:column}
+.behind::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.4)}
+.behind .view{animation:none}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:40px;background:var(--surface);border-radius:14px 14px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:up .3s ease;z-index:2}
+.sheet .view{min-height:0;animation:none}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.sheet-bar{display:grid;grid-template-columns:76px 1fr 76px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.sheet-title{text-align:center;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-btn{background:none;border:0;padding:6px 4px;text-align:left}
+@media (prefers-reduced-motion:reduce){.sheet,.mini-spin{animation:none}}
+
+/* auth */
+.portal-head{background:var(--brand);color:var(--brand-ink);padding:22px 18px 18px}
+.portal-head p{margin:2px 0 0;opacity:.9;font-size:14px}
+.note{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 12px;font-size:13px}
+.spinner{width:40px;height:40px;border-radius:50%;border:4px solid var(--brand-soft);border-top-color:var(--brand);animation:spin .9s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spinner{animation:none}}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+
+/* landing */
+.hero{background:linear-gradient(160deg,var(--brand),#6a48d8);color:#fff;padding:18px 18px 22px}
+.hero .eyebrow{font-size:12px;opacity:.85;display:flex;justify-content:space-between;align-items:center}
+.hero h2{font-size:22px;margin:8px 0 12px;color:#fff}
+.date-card{background:rgba(255,255,255,.16);border-radius:16px;padding:12px 14px;display:flex;gap:14px;align-items:center}
+.count{font-size:34px;font-weight:700;line-height:1;min-width:54px;text-align:center}
+.count small{display:block;font-size:12px;font-weight:400;opacity:.9}
+.date-card p{margin:0;font-size:14px}
+.cands{display:grid;gap:10px;padding:14px 18px 0}
+.cand{border:1px solid var(--line);border-radius:16px;background:var(--surface2);overflow:hidden}
+.cand summary{list-style:none;display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer}
+.cand summary::-webkit-details-marker{display:none}
+.avatar{width:56px;height:56px;border-radius:14px;flex:none;display:grid;place-items:center;color:#fff;font-weight:700;font-size:24px;position:relative}
+.avatar span{position:absolute;right:-6px;bottom:-6px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:999px;min-width:26px;height:26px;display:grid;place-items:center;font-size:13px;padding:0 4px}
+.cand .meta{flex:1;min-width:0}
+.cand .meta p{margin:0;font-size:13px;color:var(--muted)}
+.chev{transition:transform .2s;color:var(--muted)}
+details[open] .chev{transform:rotate(180deg)}
+.cand ul{margin:0;padding:0 16px 14px 36px;font-size:14px}
+.sample{font-size:12px;color:var(--muted);padding:8px 18px 0}
+.cta-bar{padding:14px 18px calc(10px + env(safe-area-inset-bottom));display:grid;gap:8px;border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0}
+.privacy{font-size:12px;color:var(--muted);text-align:center;padding:0 18px 14px;background:var(--surface)}
+
+/* internet */
+.browser{margin:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.urlbar{background:var(--surface2);padding:8px 12px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
+.ok-ico{width:56px;height:56px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;font-size:28px;margin:0 auto 12px}
+.toast{position:absolute;left:16px;right:16px;top:44px;background:var(--ink);color:var(--surface);border-radius:12px;padding:10px 14px;font-size:13px;z-index:5}
+
+/* side panel */
+.side{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.card h3{margin-bottom:10px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:12px;border:1px solid transparent;color:var(--muted)}
+.steps li .n{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.steps li.done .n{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.steps li.now{background:var(--brand-soft);color:var(--ink);border-color:var(--brand)}
+.steps li.now .n{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+.steps b{display:block;font-size:15px;color:inherit}
+.steps small{font-size:13px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ctrl .btn{width:auto;flex:1 1 180px}
+.log{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;max-height:170px;overflow:auto;background:var(--surface2);border-radius:10px;padding:10px 12px}
+.log div{padding:1px 0}
+.rules{margin:0;padding-left:20px;font-size:14px;display:grid;gap:6px}
+.q li::marker{color:var(--brand)}
+
+/* แถบขั้นตอนสำหรับมือถือ (ซ่อนบนจอใหญ่) */
+.mbar,.b-mob{display:none}
+
+/* มือถือ: เต็มจอ ไม่มีกรอบเครื่องและแถบสถานะปลอม */
+@media (max-width:640px){
+  .h-long,.b-desk{display:none}
+  .b-mob{display:inline}
+  .app{padding:0 0 32px;gap:12px}
+  .proto-tag{padding:10px 14px 0;gap:4px 10px;flex-wrap:nowrap}
+  .proto-tag h1{font-size:16px;line-height:1.3}
+  .proto-tag p{display:none}
+  .badge{font-size:11px;white-space:nowrap}
+  .mbar{display:flex;grid-column:1/-1;align-items:center;gap:8px;padding:0 14px}
+  .mbar .lbl{flex:1;min-width:0;font-size:12px;color:var(--muted);line-height:1.3}
+  .mbar .lbl b{display:block;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mbar .btn,.mbar a.btn{width:auto;flex:none;padding:10px 12px;font-size:13px;text-decoration:none}
+  .phone{max-width:none;background:none;padding:0;border-radius:0;box-shadow:none}
+  .screen{height:calc(100vh - 118px);height:calc(100dvh - 118px);min-height:480px;border-radius:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .status{display:none}
+  .behind{padding-top:0}
+  .sheet{top:10px}
+  .ios-nav{padding-top:14px}
+  .bar-btn{min-height:44px;padding:6px 4px}
+  .toast{top:20px}
+  .side{padding:0 12px}
+  .card{padding:14px 14px}
+  .ctrl .btn{flex:1 1 100%;padding:12px}
+}
+@media (max-width:640px) and (max-height:700px){
+  .hero{padding:12px 16px 14px}
+  .hero h2{font-size:19px;margin:6px 0 8px}
+  .date-card{padding:10px 12px}
+  .cta-bar{padding-top:10px;gap:6px}
+  .cta-bar .btn{padding:11px 14px}
+}
+@media (max-width:360px){
+  .proto-tag h1{font-size:15px}
+  .mbar .btn,.mbar a.btn{padding:10px 10px;font-size:12px}
+  .hero h2{font-size:20px}
+  .sheet-bar{grid-template-columns:68px 1fr 68px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="proto-tag">
+    <div>
+      <h1>Election Connect<span class="h-long">: Prototype User Journey</span></h1>
+      <p>ทดลองกดตามลำดับ เพื่อดูประสบการณ์ตั้งแต่เชื่อม Wi-Fi จนถึงหน้า Landing</p>
+    </div>
+    <span class="badge"><span class="b-desk">ต้นแบบเพื่อทดสอบ ไม่ใช่ระบบจริง</span><span class="b-mob">ต้นแบบ · ไม่ใช่ระบบจริง</span></span>
+  </header>
+
+  <div class="mbar" id="mbar">
+    <div class="lbl"><span id="mStep">ขั้น 1/4</span><b id="mLabel">เลือก Wi-Fi</b></div>
+    <button class="btn ghost small" id="mReset">เริ่มใหม่</button>
+    <a class="btn ghost small" href="#side">รายละเอียด ↓</a>
+  </div>
+
+  <section aria-label="หน้าจอโทรศัพท์จำลอง">
+    <div class="phone"><div class="screen" id="screen"></div></div>
+  </section>
+
+  <aside class="side" id="side">
+    <div class="card">
+      <h3>ลำดับขั้นของผู้ใช้</h3>
+      <ol class="steps" id="steps"></ol>
+      <div class="ctrl">
+        <button class="btn ghost small" id="btnReset">เริ่มใหม่ (รอบการเชื่อมต่อใหม่)</button>
+        <button class="btn ghost small" id="btnRe">จำลองต่อ Wi-Fi ซ้ำในรอบเดิม</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>บันทึกเหตุการณ์ (ไม่มีข้อมูลตัวตน)</h3>
+      <div class="log" id="log" aria-live="polite"></div>
+      <p class="muted" style="font-size:13px;margin:8px 0 0">บันทึกเฉพาะรอบการเชื่อมต่อกับการกดปุ่ม ไม่มี Buasri ID และไม่มีสถานะว่าลงคะแนนแล้วหรือยัง สรุปจำนวนจาก log นี้ไปวัดผลการเข้าถึงได้</p>
+    </div>
+
+    <div class="card">
+      <h3>หลักการออกแบบที่ใช้ใน prototype นี้</h3>
+      <ul class="rules">
+        <li>ข้ามได้เสมอ ปุ่ม "ข้ามและใช้อินเทอร์เน็ต" อยู่ติดปุ่มลงคะแนนและเห็นชัดโดยไม่ต้องเลื่อนหา ไม่มีการบล็อกหรือนับถอยหลัง</li>
+        <li>ไม่ผูกตัวตนกับการลงคะแนน ระบบไม่รู้ว่าใครลงแล้ว และไม่ถามใคร</li>
+        <li>จำกัดความถี่ตามรอบการเชื่อมต่อ แสดงหน้านี้ 1 ครั้งต่อรอบ (ลองกด "ต่อ Wi-Fi ซ้ำในรอบเดิม")</li>
+        <li>ปุ่ม SUPREME เป็น deep link ธรรมดา ผู้ใช้ไปลงคะแนนเองและยืนยันตัวตนกับ SUPREME ฝั่งเดียว</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>คำถามที่ฝั่งเทคนิคต้องยืนยัน</h3>
+      <ol class="rules q">
+        <li>Captive Portal เดิมรองรับ redirect หรือ splash page หลัง auth สำเร็จหรือไม่ และตั้งค่าได้ที่ระดับไหน (controller, portal, RADIUS)</li>
+        <li>เก็บตัวนับ "แสดงแล้วในรอบนี้" ที่ระดับ session หรืออุปกรณ์ (เช่น MAC/session ID) โดยไม่ผูกกับ Buasri ID ได้หรือไม่</li>
+        <li>กำหนดช่วงเวลา (เช่น 1 ครั้งต่อ X นาที) และช่วงวันที่แสดงหน้าได้หรือไม่</li>
+        <li>บน iPhone หน้านี้จะแสดงในหน้าต่างเล็กที่ iOS เปิดให้ตอนต่อ Wi-Fi ที่มี portal ซึ่งมีข้อจำกัดต่างจาก Safari ปกติ ต้องทดสอบกับเครื่องจริงว่าปุ่มลิงก์ไป SUPREME เปิดได้ตามต้องการหรือไม่ และต้องให้เปิดใน Safari แทนหรือไม่</li>
+      </ol>
+    </div>
+  </aside>
+</main>
+
+<script>
+/* ===== เนื้อหาตัวอย่าง: ให้ทีมแก้เฉพาะส่วนนี้เมื่อได้ข้อมูลจริง ===== */
+const CONFIG = {
+  electionTitle: "การเลือกตั้งตัวอย่าง (ข้อมูลสมมติ)",
+  electionDate: "2026-11-18",
+  hours: "09:00 – 16:00 น.",
+  supremeLabel: "SUPREME (หน้าลงคะแนน)",
+  candidates: [
+    { no: 1, name: "ผู้สมัครตัวอย่าง ก", tagline: "สโลแกนตัวอย่าง", color: "#3b3fd8", policies: ["นโยบายตัวอย่างข้อ 1", "นโยบายตัวอย่างข้อ 2", "นโยบายตัวอย่างข้อ 3"] },
+    { no: 2, name: "ผู้สมัครตัวอย่าง ข", tagline: "สโลแกนตัวอย่าง", color: "#0f8a6a", policies: ["นโยบายตัวอย่างข้อ 1", "นโยบายตัวอย่างข้อ 2", "นโยบายตัวอย่างข้อ 3"] },
+    { no: 3, name: "ผู้สมัครตัวอย่าง ค", tagline: "สโลแกนตัวอย่าง", color: "#b4471f", policies: ["นโยบายตัวอย่างข้อ 1", "นโยบายตัวอย่างข้อ 2", "นโยบายตัวอย่างข้อ 3"] }
+  ]
+};
+
+/* ===== state ===== */
+const STEPS = [
+  { id: "wifi", short: "เลือก Wi-Fi WiSE-PSM", t: "เปิด Wi-Fi และเลือกเครือข่าย WiSE-PSM", s: "นิสิตต่อเครือข่ายมหาวิทยาลัยจากหน้าตั้งค่า Wi-Fi ของ iPhone" },
+  { id: "auth", short: "ยืนยันตัวตน", t: "ยืนยันตัวตนด้วย Buasri ID", s: "หน้า login เดิมเด้งขึ้นอัตโนมัติ (ในต้นแบบเป็นการจำลอง)" },
+  { id: "landing", short: "หน้า Landing เลือกตั้ง", t: "Election Landing Page", s: "วันเลือกตั้ง เบอร์ รูป นโยบาย และปุ่ม" },
+  { id: "end", short: "ข้ามหรือไป SUPREME", t: "เลือกทาง: ข้ามหรือไป SUPREME", s: "ทั้งสองทางใช้งานได้ ไม่มีเงื่อนไข" }
+];
+const state = { screen: "wifi", session: 1, shownThisSession: false, toast: "", connecting: false };
+let timer; /* ตัวจับเวลาของขั้นตอนจำลอง ยกเลิกได้เมื่อรีเซ็ต */
+const later = (fn, ms) => { clearTimeout(timer); timer = setTimeout(fn, ms); };
+const events = [];
+const $ = (id) => document.getElementById(id);
+
+function log(name) {
+  const t = new Date().toLocaleTimeString("th-TH", { hour12: false });
+  events.push(`${t}  session#${state.session}  ${name}`);
+  renderLog();
+}
+function renderLog() {
+  const el = $("log");
+  el.innerHTML = events.length ? events.map(e => `<div>${e}</div>`).join("") : '<div class="muted">ยังไม่มีเหตุการณ์</div>';
+  el.scrollTop = el.scrollHeight;
+}
+
+function go(screen) {
+  state.screen = screen;
+  render();
+}
+
+/* ===== screens ===== */
+function clock() {
+  return `<div class="status"><span>${new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit",hour12:false})}</span><span>Wi-Fi</span></div>`;
+}
+
+const WIFI_SVG = `<svg width="20" height="16" viewBox="0 0 20 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1.5 5.5a12 12 0 0 1 17 0"/><path d="M4.5 8.8a7.7 7.7 0 0 1 11 0"/><path d="M7.5 12a3.4 3.4 0 0 1 5 0"/><circle cx="10" cy="14.6" r="1" fill="currentColor" stroke="none"/></svg>`;
+
+/* หน้าตั้งค่า Wi-Fi ของ iPhone: mode "live" กดได้, "behind" เป็นฉากหลังของหน้าต่าง portal */
+function wifiList(mode) {
+  const live = mode === "live";
+  const lead = live ? (state.connecting ? '<span class="mini-spin"></span>' : "") : "✓";
+  const netRow = live
+    ? `<button class="row" id="netMain" ${state.connecting ? "disabled" : ""}>`
+    : `<div class="row">`;
+  const netEnd = live ? "</button>" : "</div>";
+  return `
+    <div class="ios-nav"><span class="ios-back">‹ ตั้งค่า</span></div>
+    <div class="ios-title">Wi-Fi</div>
+    <div class="group"><div class="row"><span>Wi-Fi</span><span class="toggle" aria-hidden="true"><i></i></span></div></div>
+    <div class="group-h">เครือข่าย</div>
+    <div class="group">
+      ${netRow}<span class="lead">${lead}</span><span class="name">WiSE-PSM</span><span class="trail">${WIFI_SVG}<span class="info" aria-hidden="true">i</span></span>${netEnd}
+      <div class="row"><span class="lead"></span><span class="name">อื่นๆ…</span></div>
+    </div>
+    ${live ? '<p class="hint">แตะ "WiSE-PSM" เพื่อเชื่อมต่อ</p>' : ""}`;
+}
+
+function viewWifi() {
+  return `${clock()}<div class="view ios">${wifiList("live")}</div>`;
+}
+
+/* หน้าต่างล็อกอินที่ iOS เด้งขึ้นมาเมื่อต่อ Wi-Fi ที่มี Captive Portal */
+function sheet(title, body, leftLabel) {
+  return `${clock()}
+  <div class="behind" aria-hidden="true"><div class="view ios">${wifiList("behind")}</div></div>
+  <div class="sheet" role="dialog" aria-label="${title}">
+    <div class="sheet-bar"><button class="bar-btn" id="barBtn">${leftLabel}</button><div class="sheet-title">${title}</div><span></span></div>
+    <div class="view">${body}</div>
+  </div>`;
+}
+
+function viewAuth(phase) {
+  const body = phase === "loading"
+    ? `<div class="center"><div class="spinner"></div><h2>กำลังตรวจสอบ</h2><p class="muted">จำลองการตรวจสอบกับระบบ Authentication เดิม</p></div>`
+    : `<div class="portal-head"><h2 style="color:inherit">ยืนยันตัวตนเพื่อใช้อินเทอร์เน็ต</h2><p>ขั้นตอนเดิมของ Captive Portal</p></div>
+    <div class="pad" style="display:grid;gap:14px">
+      <div class="note"><b>ขั้นตอนจำลอง</b> ต้นแบบนี้ไม่มีช่องกรอกรหัสผ่านและไม่เก็บข้อมูลใด ๆ กรุณาอย่ากรอกข้อมูลจริง</div>
+      <p class="muted" style="margin:0;font-size:14px">ในระบบจริง ขั้นตอนนี้คือหน้า login เดิมของมหาวิทยาลัยที่ใช้งานอยู่แล้ว ต้นแบบนี้ไม่ได้ทำซ้ำหน้านั้น Election Connect จะเริ่มทำงานหลังจากผ่านขั้นตอนนี้แล้วเท่านั้น</p>
+      <button class="btn primary" id="btnAuth">จำลอง: ยืนยันตัวตนสำเร็จ</button>
+    </div>`;
+  return sheet("เข้าสู่ระบบเครือข่าย", body, "ยกเลิก");
+}
+
+function daysLeft() {
+  const target = new Date(CONFIG.electionDate + "T00:00:00");
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((target - today) / 86400000);
+}
+
+function avatar(c) {
+  return `<div class="avatar" style="background:${c.color}" aria-hidden="true">${c.name.slice(-1)}<span>${c.no}</span></div>`;
+}
+
+function viewLanding() {
+  const d = daysLeft();
+  const narrow = window.matchMedia("(max-width:360px)").matches;
+  const dateText = new Date(CONFIG.electionDate + "T00:00:00").toLocaleDateString("th-TH", { dateStyle: narrow ? "long" : "full" });
+  const countHtml = d > 0 ? `<div class="count">${d}<small>วัน</small></div>` : d === 0 ? `<div class="count">วันนี้</div>` : `<div class="count">–</div>`;
+  const cands = CONFIG.candidates.map(c => `
+    <details class="cand">
+      <summary>${avatar(c)}
+        <div class="meta"><h3>เบอร์ ${c.no} · ${c.name}</h3><p>${c.tagline}</p></div>
+        <span class="chev" aria-hidden="true">▾</span>
+      </summary>
+      <ul>${c.policies.map(p => `<li>${p}</li>`).join("")}</ul>
+    </details>`).join("");
+  return sheet("Election Connect", `
+    <div class="hero">
+      <div class="eyebrow"><span>Election Connect</span><span class="badge" style="background:rgba(255,255,255,.2);color:#fff">ต้นแบบ</span></div>
+      <h2>${CONFIG.electionTitle}</h2>
+      <div class="date-card">${countHtml}<p><b>${dateText}</b><br>เวลาลงคะแนน ${CONFIG.hours}</p></div>
+    </div>
+    <div class="cands">${cands}</div>
+    <p class="sample">รูป ชื่อ และนโยบายเป็นข้อมูลสมมติ รอแทนที่ด้วยข้อมูลจริงจากฝ่ายปกครอง</p>
+    <div style="flex:1"></div>
+    <div class="cta-bar">
+      <button class="btn primary" id="btnVote">ไปลงคะแนนที่ SUPREME</button>
+      <button class="btn ghost" id="btnSkip">ข้ามและใช้อินเทอร์เน็ต</button>
+    </div>
+    <div class="privacy">หน้านี้แสดงเพื่อประชาสัมพันธ์เท่านั้น ระบบไม่ตรวจสอบว่าคุณลงคะแนนแล้วหรือไม่ และไม่มีผลต่อการใช้อินเทอร์เน็ต</div>
+  `, "เสร็จสิ้น");
+}
+
+function viewInternet() {
+  return `${clock()}
+  ${state.toast ? `<div class="toast" role="status">${state.toast}</div>` : ""}
+  <div class="view">
+    <div class="browser">
+      <div class="urlbar">https://example.com</div>
+      <div class="center" style="padding:36px 20px">
+        <div class="ok-ico" aria-hidden="true">✓</div>
+        <h2>เชื่อมต่ออินเทอร์เน็ตแล้ว</h2>
+        <p class="muted">ใช้งานได้ตามปกติ ไม่มีเงื่อนไขเพิ่มเติม</p>
+      </div>
+    </div>
+    <div class="pad"><button class="btn ghost small" id="btnBackVote">เปลี่ยนใจ ไปลงคะแนนที่ SUPREME</button></div>
+  </div>`;
+}
+
+function viewSupreme() {
+  return `${clock()}
+  <div class="view">
+    <div class="portal-head" style="background:var(--ink);color:var(--surface)"><h2 style="color:inherit">${CONFIG.supremeLabel}</h2><p>หน้าจำลอง (placeholder)</p></div>
+    <div class="pad" style="display:grid;gap:14px">
+      <div class="note">หน้านี้อยู่นอกขอบเขตของ prototype ในระบบจริงปุ่มจะเปิด deep link ไปยังหน้าลงคะแนนของ SUPREME โดยตรง ผู้ใช้ยืนยันตัวตนกับ SUPREME เอง ลิงก์จริงรอทีมเทคนิคยืนยัน</div>
+      <button class="btn ghost" id="btnDone">กลับไปใช้อินเทอร์เน็ต</button>
+    </div>
+  </div>`;
+}
+
+/* ===== render ===== */
+let authPhase = "form";
+function render() {
+  const screen = $("screen");
+  const map = {
+    wifi: viewWifi,
+    auth: () => viewAuth(authPhase),
+    landing: viewLanding,
+    internet: viewInternet,
+    supreme: viewSupreme
+  };
+  screen.innerHTML = map[state.screen]();
+  bind();
+  renderSteps();
+}
+
+function renderSteps() {
+  const idx = { wifi: 0, auth: 1, landing: 2, internet: 3, supreme: 3 }[state.screen];
+  $("mStep").textContent = `ขั้น ${idx + 1}/${STEPS.length}`;
+  $("mLabel").textContent = STEPS[idx].short;
+  $("steps").innerHTML = STEPS.map((s, i) => {
+    const cls = i < idx ? "done" : i === idx ? "now" : "";
+    return `<li class="${cls}"><span class="n">${i < idx ? "✓" : i + 1}</span><span><b>${s.t}</b><small>${s.s}</small></span></li>`;
+  }).join("");
+}
+
+function afterAuth() {
+  if (state.shownThisSession) {
+    state.toast = "รอบการเชื่อมต่อนี้แสดงข่าวแล้ว จึงเข้าอินเทอร์เน็ตทันที";
+    log("auth_ok → skip_landing (แสดงแล้วในรอบนี้)");
+    go("internet");
+    setTimeout(() => { state.toast = ""; if (state.screen === "internet") render(); }, 3500);
+  } else {
+    state.shownThisSession = true;
+    log("landing_view");
+    go("landing");
+  }
+}
+
+function bind() {
+  const on = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
+  on("netMain", () => {
+    log("wifi_connect");
+    state.connecting = true; render();
+    later(() => { state.connecting = false; authPhase = "form"; go("auth"); }, 1300);
+  });
+  on("btnAuth", () => {
+    authPhase = "loading"; render();
+    later(() => { authPhase = "form"; afterAuth(); }, 1200);
+  });
+  on("barBtn", () => {
+    clearTimeout(timer);
+    if (state.screen === "auth") { log("cancel_portal"); authPhase = "form"; go("wifi"); }
+    else { log("close_sheet"); go("internet"); }
+  });
+  on("btnVote", () => { log("click_vote_supreme"); go("supreme"); });
+  on("btnSkip", () => { log("click_skip"); state.toast = ""; go("internet"); });
+  on("btnBackVote", () => { log("click_vote_supreme"); go("supreme"); });
+  on("btnDone", () => { log("return_to_internet"); go("internet"); });
+}
+
+function resetSession() {
+  clearTimeout(timer);
+  state.session += 1; state.shownThisSession = false; state.toast = ""; state.connecting = false; authPhase = "form";
+  log("new_session");
+  go("wifi");
+}
+$("btnReset").addEventListener("click", resetSession);
+$("mReset").addEventListener("click", resetSession);
+$("btnRe").addEventListener("click", () => {
+  clearTimeout(timer);
+  state.toast = ""; state.connecting = false; authPhase = "form";
+  log("wifi_reconnect (same session)");
+  go("auth");
+});
+
+renderLog();
+render();
+</script>
+</body>
+</html>
